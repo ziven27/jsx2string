@@ -1,5 +1,4 @@
-const path = require('path')
-const {CleanWebpackPlugin} = require('clean-webpack-plugin');
+const path = require('path');
 
 module.exports = {
   mode: 'production',
@@ -7,7 +6,6 @@ module.exports = {
   entry: {
     'App': './demo/App.jsx',
   },
-  plugins: [new CleanWebpackPlugin({cleanStaleWebpackAssets: false})],
   output: {
     filename: '[name].js',
     path: path.resolve(__dirname, 'dist'),

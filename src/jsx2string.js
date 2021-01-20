@@ -1,8 +1,16 @@
-// 自闭合标签
-const SELF_CLOSE_TAGS = ['img', 'link', 'meta', 'br', 'br', 'hr', 'input', 'col', 'frame', 'area', 'param', 'object', 'embed', 'keygen', 'source'];
-
 // Fragment
 const Fragment = 'Fragment';
+
+/**
+ * 判断元素是否为自闭合标签
+ * @param element
+ * @returns {boolean}
+ */
+function getIsSelfCloseTag(element) {
+  // 自闭合标签
+  const SELF_CLOSE_TAGS = ['img', 'link', 'meta', 'br', 'br', 'hr', 'input', 'col', 'frame', 'area', 'param', 'object', 'embed', 'keygen', 'source'];
+  return SELF_CLOSE_TAGS.indexOf(element) > -1;
+};
 
 
 /**
@@ -22,7 +30,7 @@ function againstXss(content = '') {
  * @param attrs
  * @returns {string}
  */
-function getStringOfAttrs(attrs) {
+function getStringOfAttrs({children, dangerouslySetInnerHTML, ...attrs} = {}) {
   if (!attrs) {
     return '';
   }
@@ -36,71 +44,109 @@ function getStringOfAttrs(attrs) {
  * @param children
  * @returns {*}
  */
-function getStrChildren(children, isXss) {
-  // console.log('=========== getStrChildren', isXss, children);
-  return children.map((children) => {
-    if (typeof children === 'string') {
-      return isXss ? againstXss(children) : children;
-    }
-    if (typeof children === 'function') {
-      return children();
-    }
+function getChildrenStr({children = '', dangerouslySetInnerHTML}) {
+  if (!children) {
     return '';
-  }).join('')
-}
+  }
 
+  // 字符串
+  if (typeof children === 'string') {
+    return dangerouslySetInnerHTML ? children : againstXss(children);
+  }
 
+  // 方法
+  if (typeof children === 'function') {
+    return children();
+  }
+
+  // 数组
+  if (children instanceof Array) {
+    return children.map((item) => getChildrenStr({children: item, dangerouslySetInnerHTML})).join('');
+  }
+
+  return '';
+};
+
+/**
+ * 渲染的方法
+ * @type {{children: (function({props?: *}): *), fn: (function({element: *, props?: *}): *), selfClose: (function({element: *, props?: *}): string), element: (function({element: *, props?: *}): string)}}
+ */
 const render = {
-  function: ({element, attrs, children, isXss}) => {
-    // console.log('function', isXss, element, attrs, children);
-    // children 转字符串
-    const strChildren = getStrChildren(children, isXss);
-    return element({
-      children: strChildren,
-      ...attrs,
-    })
+  element: function ({element, props}) {
+    // 获取 string of attr
+    const strAttrs = getStringOfAttrs(props);
+    return `<${element}${strAttrs ? ` ${strAttrs}` : ''}>${getChildrenStr(props)}</${element}>`;
   },
-  element: ({element, attrs, children, isXss}) => {
-    // console.log('element', isXss, element, attrs, children);
-    // children 转字符串
-    const strChildren = getStrChildren(children, isXss);
-    const strAttrs = getStringOfAttrs(attrs);
-    return `<${element}${strAttrs ? ` ${strAttrs}` : ''}>${strChildren}</${element}>`;
-  },
-  selfElement: ({element, attrs}) => {
-    // console.log('selfElement', element, attrs);
-    const strAttrs = getStringOfAttrs(attrs);
+  selfClose: function ({element, props}) {
+    // 获取 string of attr
+    const strAttrs = getStringOfAttrs(props);
     return `<${element}${strAttrs ? ` ${strAttrs}` : ''}/>`;
   },
-  children: ({children, isXss}) => {
-    // console.log('just children', isXss, children);
-    return getStrChildren(children, isXss);
+  children: function ({props}) {
+    return getChildrenStr(props);
+  },
+  fn: function ({element, props}) {
+    return element({
+      ...props,
+      children: getChildrenStr(props)
+    });
   }
 };
 
-function jsx2string(element, props, ...children) {
+/**
+ * 获取渲染元素发方法
+ * @param element
+ * @returns {(function({props?: *}): *)|(function({element: *, props?: *}): string)|(function({element: *, props?: *}): *)}
+ */
+function getRenderFn(element) {
+  // 自闭合标签
+  if (getIsSelfCloseTag(element)) {
+    return render.selfClose;
+  }
+  // Fragment
+  if (element === 'Fragment' || element === Fragment) {
+    return render.children;
+  }
 
-  const {dangerouslySetInnerHTML, ...attrs} = props || {};
-  // 是否需要 XSS
-  const isXss = children && children.length === 1 && typeof children[0] === 'string' && !dangerouslySetInnerHTML;
-
-  console.log(element, isXss, children);
   // 元素是 function
   if (typeof element === 'function') {
-    return render.function({element, attrs, children, isXss});
+    return render.fn;
   }
-  // 如果是 Fragment 直接渲染子元素
-  // 不知道是个啥, 直接渲染子元素
-  if (element === Fragment || typeof element !== 'string') {
-    return render.children({children, isXss});
+
+  // 渲染标准的元素
+  if (typeof element === 'string') {
+    return render.element;
   }
-  // 自闭合标签, 没有 children
-  if (SELF_CLOSE_TAGS.includes(element)) {
-    return render.selfElement({element, attrs});
-  }
-  // 标准 Tag
-  return render.element({element, attrs, children, isXss});
+
+  return render.children;
 };
 
+
+function jsx(element, props = {}) {
+  const renderFn = getRenderFn(element);
+  const result = renderFn({element, props});
+  console.log('jsx', element, 'end', renderFn, result);
+  return result;
+};
+
+function jsxs(element, {children, ...props}) {
+  console.log('========jsxs ', element, ' start');
+  const renderFn = getRenderFn(element);
+  const newChildren = children.map((item) => {
+    console.log(element, 'newChildren', {item});
+    const r = getChildrenStr({
+      children: item,
+      dangerouslySetInnerHTML: true
+    });
+    console.log(element, 'newChildren', {r});
+    return r;
+  }).join('');
+  const result = renderFn({element, props: {...props, children: newChildren, dangerouslySetInnerHTML: true}});
+  console.log('=========jsxs ', element, ' end');
+  return result;
+};
+
+const jsx2string = {Fragment, jsx, jsxs};
+
 export default jsx2string;
-export {Fragment};
+export {Fragment, jsx, jsxs};

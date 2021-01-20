@@ -7,8 +7,8 @@
     [
       "@babel/plugin-transform-react-jsx",
       {
-        "pragma": "jsx2string",
-        "pragmaFrag": "Fragment"
+        "runtime": "automatic",
+        "importSource": ".."
       }
     ]
   ]

@@ -1,28 +1,32 @@
-import jsx2string,{ Fragment } from "../index.js";
+import _jsxRuntime from "../jsx-runtime.js";
 
 const Avatar=({children, ...rest})=>{
-  return <avatar {...rest}>{children}</avatar>;
+  return <span title="avatar" {...rest}>{children}</span>;
 };
 
-const dangerText=`<i>hello</i>`;
+const dangerText=`<i>danger</i>`;
 
 const Home = function () {
   const user = {
-    "firstName": "hello",
-    "lastName": `world<br/>`
+    "firstName": "firstName",
+    "lastName": `lastName<br/>`
   };
   return (
-    <Fragment>
+    <>
       <div/>
+      <div class="df"></div>
       <div dangerouslySetInnerHTML>{dangerText}</div>
       <div>{dangerText}</div>
+      <div>{()=>{
+        return "function return hello world";
+      }}</div>
+      <div>{['1','2','3']}</div>
       <input type="checkbox" checked />
       <img src="avatar.png" class="profile"/>
-      <h3>{[user.firstName, user.lastName].join(" ")} <span>hello</span></h3>
+      <h3>{[user.firstName, user.lastName].join(" ")} {dangerText} <span>hello</span></h3>
       <Avatar title="123" />
-      <Fragment>Hello world!</Fragment>
       <>Hello world!</>
-    </Fragment>
+    </>
   )
 };
 
