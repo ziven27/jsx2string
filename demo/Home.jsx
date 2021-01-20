@@ -1,9 +1,8 @@
 import jsx2string,{ Fragment } from "../lib/jsx2string.js";
 
-const Avatar=({children, ...reset})=>{
-  return <avatar {...reset}>{children}</avatar>;
+const Avatar=({children, ...rest})=>{
+  return <avatar {...rest}>{children}</avatar>;
 };
-
 
 const dangerText=`<i>hello</i>`;
 
@@ -14,6 +13,7 @@ const Home = function () {
   };
   return (
     <Fragment>
+      <div/>
       <div>{dangerText}</div>
       <div dangerouslySetInnerHTML>{dangerText}</div>
       <input type="checkbox" checked />
