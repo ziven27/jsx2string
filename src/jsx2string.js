@@ -78,11 +78,13 @@ const render = {
   }
 };
 
-function jsx2string(element, attrs = {}, ...children) {
+function jsx2string(element, props, ...children) {
 
+  const {dangerouslySetInnerHTML, ...attrs} = props || {};
   // 是否需要 XSS
-  const isXss = children && children.length === 1 && typeof children[0] === 'string' && (!(attrs && attrs.dangerouslySetInnerHTML));
+  const isXss = children && children.length === 1 && typeof children[0] === 'string' && !dangerouslySetInnerHTML;
 
+  console.log(element, isXss, children);
   // 元素是 function
   if (typeof element === 'function') {
     return render.function({element, attrs, children, isXss});

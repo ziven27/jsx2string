@@ -1,11 +1,12 @@
 {
   "name": "jsx2string",
-  "version": "0.0.3",
+  "version": "0.0.6",
   "description": "Transpile JSX to plain javascript strings, without React or other runtime libraries.",
   "author": "ziven27",
-  "main": "./lib/jsx2string.js",
+  "main": "index.js",
   "license": "MIT",
   "private": false,
+  "files": ["index.js"],
   "repository": {
     "type": "git",
     "url": "git+https://github.com/ziven27/jsx2string.git"
@@ -16,8 +17,8 @@
   "homepage": "https://github.com/ziven27/jsx2string#readme",
   "scripts": {
     "babel": "./node_modules/.bin/babel demo/Home.jsx --out-dir dist",
-    "demo": "webpack --config ./webpack.demo.js && node dist/App.js",
-    "build": "./node_modules/.bin/babel src/jsx2string.js --out-dir lib",
+    "demo": "npm run build && webpack --config ./webpack.demo.js && node dist/App.js",
+    "build": "./node_modules/.bin/babel ./src/jsx2string.js --out-file ./index.js",
     "prepublishOnly": "npm run build"
   },
   "devDependencies": {

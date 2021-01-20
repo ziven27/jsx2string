@@ -1,4 +1,4 @@
-import jsx2string,{ Fragment } from "../lib/jsx2string.js";
+import jsx2string,{ Fragment } from "../index.js";
 
 const Avatar=({children, ...rest})=>{
   return <avatar {...rest}>{children}</avatar>;
@@ -14,14 +14,14 @@ const Home = function () {
   return (
     <Fragment>
       <div/>
-      <div>{dangerText}</div>
       <div dangerouslySetInnerHTML>{dangerText}</div>
+      <div>{dangerText}</div>
       <input type="checkbox" checked />
       <img src="avatar.png" class="profile"/>
       <h3>{[user.firstName, user.lastName].join(" ")} <span>hello</span></h3>
       <Avatar title="123" />
-      <Fragment>再见</Fragment>
-      <>再见2</>
+      <Fragment>Hello world!</Fragment>
+      <>Hello world!</>
     </Fragment>
   )
 };
