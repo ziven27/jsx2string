@@ -139,9 +139,10 @@ var render = {
   fn: function fn(_ref6) {
     var element = _ref6.element,
         props = _ref6.props;
-    return element(_objectSpread(_objectSpread({}, props), {}, {
+    var result = element(_objectSpread(_objectSpread({}, props), {}, {
       children: getChildrenStr(props)
     }));
+    return typeof result === 'function' ? result() : result;
   }
 };
 /**
@@ -178,14 +179,12 @@ function getRenderFn(element) {
 
 function jsx(element) {
   var props = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
-  console.log('jsx', element, 'start');
-  var renderFn = getRenderFn(element);
-  var result = renderFn({
-    element: element,
-    props: props
-  });
-  console.log('jsx', element, 'end', renderFn, result);
-  return result;
+  return function () {
+    return getRenderFn(element)({
+      element: element,
+      props: props
+    });
+  };
 }
 
 ;
@@ -194,30 +193,30 @@ function jsxs(element, _ref7) {
   var children = _ref7.children,
       props = _objectWithoutProperties(_ref7, ["children"]);
 
-  console.log('========jsxs ', element, ' start');
-  var renderFn = getRenderFn(element);
-  var newChildren = children.map(function (item) {
-    console.log(element, 'newChildren', {
-      item: item
+  return function () {
+    var newChildren = children.map(function (item) {
+      // 没有这个方法，会导致子元素为字符串和非字符串混排的时候，导致这里的字符串不会被xss
+      // 为了兼容这个让 jsxs 和 jsx 返回的是function
+      // 目前没有找到解决方案
+      if (typeof item === 'string') {
+        return function () {
+          return getChildrenStr({
+            children: item
+          });
+        };
+      }
+
+      return item;
     });
-    var r = getChildrenStr({
-      children: item,
-      dangerouslySetInnerHTML: true
+    var renderFn = getRenderFn(element);
+    var result = renderFn({
+      element: element,
+      props: _objectSpread(_objectSpread({}, props), {}, {
+        children: newChildren
+      })
     });
-    console.log(element, 'newChildren', {
-      r: r
-    });
-    return r;
-  }).join('');
-  var result = renderFn({
-    element: element,
-    props: _objectSpread(_objectSpread({}, props), {}, {
-      children: newChildren,
-      dangerouslySetInnerHTML: true
-    })
-  });
-  console.log('=========jsxs ', element, ' end');
-  return result;
+    return result;
+  };
 }
 
 ;

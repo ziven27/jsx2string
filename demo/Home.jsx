@@ -1,5 +1,3 @@
-import _jsxRuntime from "../jsx-runtime.js";
-
 const Avatar=({children, ...rest})=>{
   return <span title="avatar" {...rest}>{children}</span>;
 };
@@ -24,8 +22,7 @@ const Home = function () {
       <input type="checkbox" checked />
       <img src="avatar.png" class="profile"/>
       <h3>{[user.firstName, user.lastName].join(" ")} {dangerText} <span>hello</span></h3>
-      <Avatar title="123" />
-      <>Hello world!</>
+      <Avatar title="123" >1232</Avatar>
     </>
   )
 };

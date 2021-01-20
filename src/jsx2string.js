@@ -86,10 +86,11 @@ const render = {
     return getChildrenStr(props);
   },
   fn: function ({element, props}) {
-    return element({
+    const result = element({
       ...props,
       children: getChildrenStr(props)
     });
+    return typeof result === 'function' ? result() : result;
   }
 };
 
@@ -121,29 +122,31 @@ function getRenderFn(element) {
   return render.children;
 };
 
-
 function jsx(element, props = {}) {
-  const renderFn = getRenderFn(element);
-  const result = renderFn({element, props});
-  console.log('jsx', element, 'end', renderFn, result);
-  return result;
+  return function () {
+    return getRenderFn(element)({element, props});
+  };
 };
 
 function jsxs(element, {children, ...props}) {
-  console.log('========jsxs ', element, ' start');
-  const renderFn = getRenderFn(element);
-  const newChildren = children.map((item) => {
-    console.log(element, 'newChildren', {item});
-    const r = getChildrenStr({
-      children: item,
-      dangerouslySetInnerHTML: true
+  return function () {
+    const newChildren = children.map((item) => {
+      // 没有这个方法，会导致子元素为字符串和非字符串混排的时候，导致这里的字符串不会被xss
+      // 为了兼容这个让 jsxs 和 jsx 返回的是function
+      // 目前没有找到解决方案
+      if (typeof item === 'string') {
+        return function () {
+          return getChildrenStr({
+            children: item
+          });
+        };
+      }
+      return item;
     });
-    console.log(element, 'newChildren', {r});
-    return r;
-  }).join('');
-  const result = renderFn({element, props: {...props, children: newChildren, dangerouslySetInnerHTML: true}});
-  console.log('=========jsxs ', element, ' end');
-  return result;
+    const renderFn = getRenderFn(element);
+    const result = renderFn({element, props: {...props, children: newChildren}});
+    return result;
+  };
 };
 
 const jsx2string = {Fragment, jsx, jsxs};
