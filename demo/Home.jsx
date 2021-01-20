@@ -12,17 +12,17 @@ const Home = function () {
   return (
     <>
       <div/>
-      <div class="df"></div>
+      <div className="df">{{hello:'123'}}</div>
       <div dangerouslySetInnerHTML>{dangerText}</div>
       <div>{dangerText}</div>
-      <div>{()=>{
+      <div>{() => {
         return "function return hello world";
       }}</div>
-      <div>{['1','2','3']}</div>
-      <input type="checkbox" checked />
-      <img src="avatar.png" class="profile"/>
+      <div>{['1', '2', '3']}</div>
+      <input type="checkbox" checked/>
+      <img src="avatar.png" className="profile"/>
       <h3>{[user.firstName, user.lastName].join(" ")} {dangerText} <span>hello</span></h3>
-      <Avatar title="123" >1232</Avatar>
+      <Avatar title="123">1232</Avatar>
     </>
   )
 };

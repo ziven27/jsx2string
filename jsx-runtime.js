@@ -17,101 +17,95 @@ function _objectWithoutProperties(source, excluded) { if (source == null) return
 
 function _objectWithoutPropertiesLoose(source, excluded) { if (source == null) return {}; var target = {}; var sourceKeys = Object.keys(source); var key, i; for (i = 0; i < sourceKeys.length; i++) { key = sourceKeys[i]; if (excluded.indexOf(key) >= 0) continue; target[key] = source[key]; } return target; }
 
-// Fragment
-var Fragment = 'Fragment';
-/**
- * 判断元素是否为自闭合标签
- * @param element
- * @returns {boolean}
- */
-
+var Fragment = "Fragment";
 exports.Fragment = Fragment;
+var _api = {
+  /**
+   * 是否为自闭合标签
+   * @param element
+   * @returns {boolean}
+   */
+  getIsSelfCloseTag: function getIsSelfCloseTag(element) {
+    // 自闭合标签列表
+    var SELF_CLOSE_TAGS = ['img', 'link', 'meta', 'br', 'br', 'hr', 'input', 'col', 'frame', 'area', 'param', 'object', 'embed', 'keygen', 'source'];
+    return SELF_CLOSE_TAGS.indexOf(element) > -1;
+  },
 
-function getIsSelfCloseTag(element) {
-  // 自闭合标签
-  var SELF_CLOSE_TAGS = ['img', 'link', 'meta', 'br', 'br', 'hr', 'input', 'col', 'frame', 'area', 'param', 'object', 'embed', 'keygen', 'source'];
-  return SELF_CLOSE_TAGS.indexOf(element) > -1;
-}
+  /**
+   * xss 转译
+   * @param content
+   * @returns {string}
+   */
+  againstXss: function againstXss() {
+    var content = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : '';
 
-;
-/**
- * 防止 Xss 攻击
- * @param content
- * @returns {string}
- */
+    if (!content) {
+      return '';
+    }
 
-function againstXss() {
-  var content = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : '';
+    return String(content).replace(/\</g, '&lt;').replace(/\>/g, '&gt;');
+  },
 
-  if (!content) {
+  /**
+   * 基于 attrs 获取 字符串
+   * @param children
+   * @param dangerouslySetInnerHTML
+   * @param attrs
+   * @returns {string}
+   */
+  getStringOfAttrs: function getStringOfAttrs() {
+    var _ref = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
+        children = _ref.children,
+        dangerouslySetInnerHTML = _ref.dangerouslySetInnerHTML,
+        attrs = _objectWithoutProperties(_ref, ["children", "dangerouslySetInnerHTML"]);
+
+    if (!attrs) {
+      return '';
+    }
+
+    return Object.keys(attrs).map(function (key) {
+      return "".concat(key, "=\"").concat(_api.againstXss(attrs[key]), "\"");
+    }).join(' ');
+  },
+
+  /**
+   * 获取子元素
+   * @param children
+   * @param dangerouslySetInnerHTML
+   * @returns {string|*}
+   */
+  getChildrenStr: function getChildrenStr(_ref2) {
+    var _ref2$children = _ref2.children,
+        children = _ref2$children === void 0 ? '' : _ref2$children,
+        dangerouslySetInnerHTML = _ref2.dangerouslySetInnerHTML;
+
+    if (!children) {
+      return '';
+    } // 字符串
+
+
+    if (typeof children === 'string') {
+      return dangerouslySetInnerHTML ? children : _api.againstXss(children);
+    } // 方法
+
+
+    if (typeof children === 'function') {
+      return children();
+    } // 数组
+
+
+    if (children instanceof Array) {
+      return children.map(function (item) {
+        return _api.getChildrenStr({
+          children: item,
+          dangerouslySetInnerHTML: dangerouslySetInnerHTML
+        });
+      }).join('');
+    }
+
     return '';
   }
-
-  return String(content).replace(/\</g, '&lt;').replace(/\>/g, '&gt;');
-}
-
-;
-/**
- * 获取 Attrs 的字符串
- * @param attrs
- * @returns {string}
- */
-
-function getStringOfAttrs() {
-  var _ref = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
-      children = _ref.children,
-      dangerouslySetInnerHTML = _ref.dangerouslySetInnerHTML,
-      attrs = _objectWithoutProperties(_ref, ["children", "dangerouslySetInnerHTML"]);
-
-  if (!attrs) {
-    return '';
-  }
-
-  return Object.keys(attrs).map(function (key) {
-    return "".concat(key, "=\"").concat(againstXss(attrs[key]), "\"");
-  }).join(' ');
-}
-
-;
-/**
- * 获取 children 的字符串
- * @param children
- * @returns {*}
- */
-
-function getChildrenStr(_ref2) {
-  var _ref2$children = _ref2.children,
-      children = _ref2$children === void 0 ? '' : _ref2$children,
-      dangerouslySetInnerHTML = _ref2.dangerouslySetInnerHTML;
-
-  if (!children) {
-    return '';
-  } // 字符串
-
-
-  if (typeof children === 'string') {
-    return dangerouslySetInnerHTML ? children : againstXss(children);
-  } // 方法
-
-
-  if (typeof children === 'function') {
-    return children();
-  } // 数组
-
-
-  if (children instanceof Array) {
-    return children.map(function (item) {
-      return getChildrenStr({
-        children: item,
-        dangerouslySetInnerHTML: dangerouslySetInnerHTML
-      });
-    }).join('');
-  }
-
-  return '';
-}
-
-;
+};
 /**
  * 渲染的方法
  * @type {{children: (function({props?: *}): *), fn: (function({element: *, props?: *}): *), selfClose: (function({element: *, props?: *}): string), element: (function({element: *, props?: *}): string)}}
@@ -121,39 +115,43 @@ var render = {
   element: function element(_ref3) {
     var _element = _ref3.element,
         props = _ref3.props;
+
     // 获取 string of attr
-    var strAttrs = getStringOfAttrs(props);
-    return "<".concat(_element).concat(strAttrs ? " ".concat(strAttrs) : '', ">").concat(getChildrenStr(props), "</").concat(_element, ">");
+    var strAttrs = _api.getStringOfAttrs(props);
+
+    return "<".concat(_element).concat(strAttrs ? " ".concat(strAttrs) : '', ">").concat(_api.getChildrenStr(props), "</").concat(_element, ">");
   },
   selfClose: function selfClose(_ref4) {
     var element = _ref4.element,
         props = _ref4.props;
+
     // 获取 string of attr
-    var strAttrs = getStringOfAttrs(props);
+    var strAttrs = _api.getStringOfAttrs(props);
+
     return "<".concat(element).concat(strAttrs ? " ".concat(strAttrs) : '', "/>");
   },
   children: function children(_ref5) {
     var props = _ref5.props;
-    return getChildrenStr(props);
+    return _api.getChildrenStr(props);
   },
   fn: function fn(_ref6) {
     var element = _ref6.element,
         props = _ref6.props;
     var result = element(_objectSpread(_objectSpread({}, props), {}, {
-      children: getChildrenStr(props)
+      children: _api.getChildrenStr(props)
     }));
     return typeof result === 'function' ? result() : result;
   }
 };
 /**
- * 获取渲染元素发方法
+ * 获取渲染函数
  * @param element
- * @returns {(function({props?: *}): *)|(function({element: *, props?: *}): string)|(function({element: *, props?: *}): *)}
+ * @returns {(function({element: *, props?: *}): *)|(function({props?: *}): *)|(function({element: *, props?: *}): string)}
  */
 
 function getRenderFn(element) {
   // 自闭合标签
-  if (getIsSelfCloseTag(element)) {
+  if (_api.getIsSelfCloseTag(element)) {
     return render.selfClose;
   } // Fragment
 
@@ -175,8 +173,6 @@ function getRenderFn(element) {
   return render.children;
 }
 
-;
-
 function jsx(element) {
   var props = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
   return function () {
@@ -188,6 +184,13 @@ function jsx(element) {
 }
 
 ;
+/**
+ * 表示当前标签有多个子元素
+ * @param element
+ * @param children
+ * @param props
+ * @returns {function(): *}
+ */
 
 function jsxs(element, _ref7) {
   var children = _ref7.children,
@@ -200,7 +203,7 @@ function jsxs(element, _ref7) {
       // 目前没有找到解决方案
       if (typeof item === 'string') {
         return function () {
-          return getChildrenStr({
+          return _api.getChildrenStr({
             children: item
           });
         };
