@@ -1,8 +1,8 @@
-const Avatar=({children, ...rest})=>{
+const Avatar = ({children, ...rest}) => {
   return <span title="avatar" {...rest}>{children}</span>;
 };
 
-const dangerText=`<i>danger</i>`;
+const dangerText = `<i>danger</i>`;
 
 const Home = function () {
   const user = {
@@ -11,8 +11,9 @@ const Home = function () {
   };
   return (
     <>
+      <>{dangerText}</>
       <div/>
-      <div className="df">{{hello:'123'}}</div>
+      <div className="df" title="123" data-index="1">{{hello: '123'}}</div>
       <div dangerouslySetInnerHTML>{dangerText}</div>
       <div>{dangerText}</div>
       <div>{() => {
@@ -21,7 +22,7 @@ const Home = function () {
       <div>{['1', '2', '3']}</div>
       <input type="checkbox" checked/>
       <img src="avatar.png" className="profile"/>
-      <h3 dangerouslySetInnerHTML>{[user.firstName, user.lastName].join(" ")} {dangerText} <span>hello</span></h3>
+      <h3>{[user.firstName, user.lastName].join(" ")} {dangerText} <span>hello</span></h3>
       <Avatar title="123">1232</Avatar>
     </>
   )

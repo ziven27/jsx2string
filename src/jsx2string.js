@@ -1,6 +1,25 @@
-const Fragment = "Fragment";
-
 const _api = {
+  /**
+   * 基于数组获取字符串(为了更好的性能)
+   * @param arrayObj 数组
+   * @param callback 回掉函数
+   * @param splitString 分割符
+   * @returns {string}
+   */
+  array2string: function (arrayObj = [], callback, splitString = '') {
+    let str = '';
+    if (!(arrayObj && arrayObj.length > 0)) {
+      return str;
+    }
+    for (let i = 0, len = arrayObj.length; i < len; i++) {
+      // 获取字符串
+      const strGet = typeof callback === 'function' ? callback(arrayObj[i]) : arrayObj[i];
+      // 第一个元素不需要分割符，即使有
+      const splitStr = (i !== 0) ? splitString : '';
+      str += splitStr + strGet;
+    }
+    return str;
+  },
   /**
    * 是否为自闭合标签
    * @param element
@@ -30,10 +49,10 @@ const _api = {
    * @returns {string}
    */
   getStringOfAttrs: function ({children, dangerouslySetInnerHTML, ...attrs} = {}) {
-    if (!attrs) {
-      return '';
-    }
-    return Object.keys(attrs).map((key) => `${key}="${_api.againstXss(attrs[key])}"`).join(' ');
+    const attrKeys = Object.keys(attrs || {});
+    return _api.array2string(attrKeys, function (attrKey) {
+      return _api.againstXss(`${attrKey}="${attrs[attrKey]}"`);
+    }, ' ');
   },
   /**
    * 获取子元素
@@ -55,8 +74,10 @@ const _api = {
     }
 
     // 数组
-    if (children instanceof Array) {
-      return children.map((item) => _api.getChildrenStr({children: item, dangerouslySetInnerHTML})).join('');
+    if (children instanceof Array && children.length > 0) {
+      return _api.array2string(children, function (item) {
+        return _api.getChildrenStr({children: item, dangerouslySetInnerHTML})
+      });
     }
     return '';
   }
@@ -88,32 +109,34 @@ const render = {
   }
 };
 
+
+// 空标签
+const Fragment = "Fragment";
+
 /**
  * 获取渲染函数
  * @param element
  * @returns {(function({element: *, props?: *}): *)|(function({props?: *}): *)|(function({element: *, props?: *}): string)}
  */
 function getRenderFn(element) {
-  // 自闭合标签
-  if (_api.getIsSelfCloseTag(element)) {
-    return render.selfClose;
-  }
-  // Fragment
-  if (element === 'Fragment' || element === Fragment) {
-    return render.children;
-  }
-
   // 元素是 function
   if (typeof element === 'function') {
     return render.fn;
   }
-
-  // 渲染标准的元素
-  if (typeof element === 'string') {
-    return render.element;
+  // Fragment
+  if (element === Fragment) {
+    return render.children;
   }
-
-  return render.children;
+  // 如果不是 字符串提前返回
+  if (typeof element !== 'string') {
+    return render.children;
+  }
+  // 自闭合标签
+  if (_api.getIsSelfCloseTag(element)) {
+    return render.selfClose;
+  }
+  // 渲染标准的元素
+  return render.element;
 };
 
 /**
@@ -122,40 +145,18 @@ function getRenderFn(element) {
  * @param props
  * @returns {function(): *}
  */
-function jsx(element, props = {}) {
+const jsx = function jsx(element, props = {}) {
   return function () {
     return getRenderFn(element)({element, props});
   };
 };
 
 /**
- * 表示当前标签有多个子元素
- * @param element
- * @param children
- * @param props
- * @returns {function(): *}
+ * 当有多个子元素当时候
+ * 这里处理和只有一个子元素一样
+ * @type {function(*=, *=): function(): *}
  */
-function jsxs(element, {children, ...props}) {
-  return function () {
-    const newChildren = children.map((item) => {
-      // 没有这个方法，会导致子元素为字符串和非字符串混排的时候，导致这里的字符串不会被xss
-      // 为了兼容这个让 jsxs 和 jsx 返回的是function
-      // 目前没有找到解决方案
-      if (typeof item === 'string') {
-        return function () {
-          return _api.getChildrenStr({
-            children: item,
-            dangerouslySetInnerHTML: props.dangerouslySetInnerHTML
-          });
-        };
-      }
-      return item;
-    });
-    const renderFn = getRenderFn(element);
-    const result = renderFn({element, props: {...props, children: newChildren}});
-    return result;
-  };
-};
+const jsxs = jsx;
 
 const jsx2string = {Fragment, jsx, jsxs};
 export default jsx2string;
