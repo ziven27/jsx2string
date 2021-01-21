@@ -1,6 +1,6 @@
 {
   "name": "jsx2string",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "description": "Transpile JSX to plain javascript strings, without React or other runtime libraries.",
   "author": "ziven27",
   "main": "index.js",
@@ -18,7 +18,7 @@
   "scripts": {
     "babel": "./node_modules/.bin/babel demo/Home.jsx --out-dir dist",
     "demo": "npm run build && webpack --config ./webpack.demo.js && node dist/App.js",
-    "build": "./node_modules/.bin/babel ./src/jsx2string.js --out-file ./index.js",
+    "build": "./node_modules/.bin/babel ./src/jsx2string.js --out-file ./jsx-runtime.js",
     "prepublishOnly": "npm run build"
   },
   "devDependencies": {

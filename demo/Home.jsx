@@ -1,29 +1,31 @@
-import jsx2string,{ Fragment } from "../index.js";
-
-const Avatar=({children, ...rest})=>{
-  return <avatar {...rest}>{children}</avatar>;
+const Avatar = ({children, ...rest}) => {
+  return <span title="avatar" {...rest}>{children}</span>;
 };
 
-const dangerText=`<i>hello</i>`;
+const dangerText = `<i>danger</i>`;
 
 const Home = function () {
   const user = {
-    "firstName": "hello",
-    "lastName": `world<br/>`
+    "firstName": "firstName",
+    "lastName": `lastName<br/>`
   };
   return (
-    <Fragment>
+    <div>
+      <>{dangerText}</>
       <div/>
       <div dangerouslySetInnerHTML>{dangerText}</div>
       <div>{dangerText}</div>
-      <input type="checkbox" checked />
-      <img src="avatar.png" class="profile"/>
-      <h3>{[user.firstName, user.lastName].join(" ")} <span>hello</span></h3>
-      <Avatar title="123" />
-      <Fragment>Hello world!</Fragment>
-      <>Hello world!</>
-    </Fragment>
+      <div>{() => {
+        return "function return hello world";
+      }}</div>
+      <div>{['1', '2', '3']}</div>
+      <input type="checkbox" checked/>
+      <img src="avatar.png" className="profile"/>
+      <h3>{[user.firstName, user.lastName].join(" ")} {dangerText} <span>hello</span></h3>
+      <Avatar title="123">1232</Avatar>
+      {[1, 2, 3].map((item) => <Avatar>{item}</Avatar>)}
+    </div>
   )
 };
 
-export default Home;
+export default Home();

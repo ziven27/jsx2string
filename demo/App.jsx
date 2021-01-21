@@ -1,3 +1,5 @@
 import Home from "./Home.jsx";
 
-console.log("\n=========== The Home() render:\n",Home(),'\n');
+console.time('renderTimer');
+console.log(Home());
+console.timeEnd('renderTimer');
