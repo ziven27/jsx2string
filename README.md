@@ -2,6 +2,16 @@
 
 Transpile JSX to plain javascript strings, without React or other runtime libraries.
 
+| NPM package                          | github                          |
+| ------------------------------------ | ------------------------------- |
+| [![npm package][npm-badge]][npm-url] | [![github][git-badge]][git-url] |
+
+[npm-badge]: https://img.shields.io/npm/v/jsx2string.svg
+[npm-url]: https://www.npmjs.org/package/jsx2string
+[git-url]: https://github.com/ziven27/jsx2string
+[git-badge]: https://img.shields.io/github/stars/ziven27/jsx2string.svg?style=social
+
+
 ### Features
 
 - Render Basic Single Component `<div />`
