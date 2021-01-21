@@ -10,10 +10,9 @@ const Home = function () {
     "lastName": `lastName<br/>`
   };
   return (
-    <>
+    <div>
       <>{dangerText}</>
       <div/>
-      <div className="df" title="123" data-index="1">{{hello: '123'}}</div>
       <div dangerouslySetInnerHTML>{dangerText}</div>
       <div>{dangerText}</div>
       <div>{() => {
@@ -24,8 +23,9 @@ const Home = function () {
       <img src="avatar.png" className="profile"/>
       <h3>{[user.firstName, user.lastName].join(" ")} {dangerText} <span>hello</span></h3>
       <Avatar title="123">1232</Avatar>
-    </>
+      {[1, 2, 3].map((item) => <Avatar>{item}</Avatar>)}
+    </div>
   )
 };
 
-export default Home;
+export default Home();

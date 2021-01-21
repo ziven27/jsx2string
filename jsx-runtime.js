@@ -11,6 +11,8 @@ function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { va
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
+function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+
 function _objectWithoutProperties(source, excluded) { if (source == null) return {}; var target = _objectWithoutPropertiesLoose(source, excluded); var key, i; if (Object.getOwnPropertySymbols) { var sourceSymbolKeys = Object.getOwnPropertySymbols(source); for (i = 0; i < sourceSymbolKeys.length; i++) { key = sourceSymbolKeys[i]; if (excluded.indexOf(key) >= 0) continue; if (!Object.prototype.propertyIsEnumerable.call(source, key)) continue; target[key] = source[key]; } } return target; }
 
 function _objectWithoutPropertiesLoose(source, excluded) { if (source == null) return {}; var target = {}; var sourceKeys = Object.keys(source); var key, i; for (i = 0; i < sourceKeys.length; i++) { key = sourceKeys[i]; if (excluded.indexOf(key) >= 0) continue; target[key] = source[key]; } return target; }
@@ -102,11 +104,11 @@ var _api = {
 
     if (!children) {
       return '';
-    } // 字符串
+    } // 返回 render 函数
 
 
-    if (typeof children === 'string') {
-      return dangerouslySetInnerHTML ? children : _api.againstXss(children);
+    if (_typeof(children) === 'object' && typeof children.render === "function") {
+      return children.render();
     } // 方法
 
 
@@ -116,15 +118,17 @@ var _api = {
 
 
     if (children instanceof Array && children.length > 0) {
-      return _api.array2string(children, function (item) {
+      var result = _api.array2string(children, function (item) {
         return _api.getChildrenStr({
           children: item,
           dangerouslySetInnerHTML: dangerouslySetInnerHTML
         });
       });
+
+      return result;
     }
 
-    return '';
+    return dangerouslySetInnerHTML ? children : _api.againstXss(children);
   }
 };
 /**

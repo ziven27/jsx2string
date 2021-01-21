@@ -64,22 +64,22 @@ const _api = {
     if (!children) {
       return '';
     }
-    // 字符串
-    if (typeof children === 'string') {
-      return dangerouslySetInnerHTML ? children : _api.againstXss(children);
+    // 返回 render 函数
+    if (typeof children === 'object' && typeof children.render === "function") {
+      return children.render();
     }
     // 方法
     if (typeof children === 'function') {
       return children();
     }
-
     // 数组
     if (children instanceof Array && children.length > 0) {
-      return _api.array2string(children, function (item) {
+      const result = _api.array2string(children, function (item) {
         return _api.getChildrenStr({children: item, dangerouslySetInnerHTML})
       });
+      return result;
     }
-    return '';
+    return dangerouslySetInnerHTML ? children : _api.againstXss(children);
   }
 };
 /**
