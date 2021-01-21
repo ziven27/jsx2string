@@ -21,7 +21,7 @@ const Home = function () {
       <div>{['1', '2', '3']}</div>
       <input type="checkbox" checked/>
       <img src="avatar.png" className="profile"/>
-      <h3>{[user.firstName, user.lastName].join(" ")} {dangerText} <span>hello</span></h3>
+      <h3 dangerouslySetInnerHTML>{[user.firstName, user.lastName].join(" ")} {dangerText} <span>hello</span></h3>
       <Avatar title="123">1232</Avatar>
     </>
   )

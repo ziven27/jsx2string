@@ -173,6 +173,14 @@ function getRenderFn(element) {
   return render.children;
 }
 
+;
+/**
+ * 渲染子元素
+ * @param element
+ * @param props
+ * @returns {function(): *}
+ */
+
 function jsx(element) {
   var props = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
   return function () {
@@ -204,7 +212,8 @@ function jsxs(element, _ref7) {
       if (typeof item === 'string') {
         return function () {
           return _api.getChildrenStr({
-            children: item
+            children: item,
+            dangerouslySetInnerHTML: props.dangerouslySetInnerHTML
           });
         };
       }

@@ -114,8 +114,14 @@ function getRenderFn(element) {
   }
 
   return render.children;
-}
+};
 
+/**
+ * 渲染子元素
+ * @param element
+ * @param props
+ * @returns {function(): *}
+ */
 function jsx(element, props = {}) {
   return function () {
     return getRenderFn(element)({element, props});
@@ -138,7 +144,8 @@ function jsxs(element, {children, ...props}) {
       if (typeof item === 'string') {
         return function () {
           return _api.getChildrenStr({
-            children: item
+            children: item,
+            dangerouslySetInnerHTML: props.dangerouslySetInnerHTML
           });
         };
       }
@@ -151,6 +158,5 @@ function jsxs(element, {children, ...props}) {
 };
 
 const jsx2string = {Fragment, jsx, jsxs};
-
 export default jsx2string;
 export {Fragment, jsx, jsxs};
