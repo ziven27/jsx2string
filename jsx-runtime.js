@@ -237,10 +237,10 @@ var jsx = function jsx(element) {
 exports.jsx = jsx;
 var jsxs = jsx;
 exports.jsxs = jsxs;
-var jsx2string = {
+var jsxRuntime = {
   Fragment: Fragment,
   jsx: jsx,
   jsxs: jsxs
 };
-var _default = jsx2string;
+var _default = jsxRuntime;
 exports["default"] = _default;

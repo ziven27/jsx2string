@@ -64,7 +64,8 @@ Make sure you have the "runtime" and "importSource" fn defined like below.
 Now you can create components e.g.
 
 ```jsx
-import jsx2string from "./jsx2string";
+import jsx2string from "jsx2string";
+
 const Avatar=({children, ...rest})=>{
   return <avatar {...rest}>{children}</avatar>;
 };

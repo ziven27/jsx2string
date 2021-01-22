@@ -164,6 +164,6 @@ const jsx = function jsx(element, props = {}) {
  */
 const jsxs = jsx;
 
-const jsx2string = {Fragment, jsx, jsxs};
-export default jsx2string;
+const jsxRuntime = {Fragment, jsx, jsxs};
+export default jsxRuntime;
 export {Fragment, jsx, jsxs};
