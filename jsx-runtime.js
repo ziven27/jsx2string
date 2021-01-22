@@ -87,7 +87,14 @@ var _api = {
 
     var attrKeys = Object.keys(attrs || {});
     return _api.array2string(attrKeys, function (attrKey) {
-      return _api.againstXss("".concat(attrKey === 'className' ? 'class' : attrKey, "=\"").concat(attrs[attrKey], "\""));
+      var value = attrs[attrKey]; // 忽略 false 的属性值
+
+      if (value === false) {
+        return '';
+      }
+
+      var key = attrKey === 'className' ? 'class' : attrKey;
+      return _api.againstXss("".concat(key, "=\"").concat(value, "\""));
     }, ' ');
   },
 

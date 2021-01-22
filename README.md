@@ -16,6 +16,7 @@ Transpile JSX to plain javascript strings, without React or other runtime librar
 
 - Render Basic Single Component `<div />`
 - ClassName to class `<div className="clearfix" />`
+- Ignore `false` props `<input checked={false} />`
 - Conditional Component `{condition ? <foo/> : <bar/>}`
 - Component with Data Attributes `<div data-some="attr">`
 - Component with Attributes `<img src="foo.jpg">`

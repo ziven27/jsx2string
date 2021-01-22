@@ -51,7 +51,13 @@ const _api = {
   getStringOfAttrs: function ({children, dangerouslySetInnerHTML, ...attrs} = {}) {
     const attrKeys = Object.keys(attrs || {});
     return _api.array2string(attrKeys, function (attrKey) {
-      return _api.againstXss(`${attrKey==='className'?'class':attrKey}="${attrs[attrKey]}"`);
+      const value = attrs[attrKey];
+      // 忽略 false 的属性值
+      if (value === false) {
+        return '';
+      }
+      const key = attrKey === 'className' ? 'class' : attrKey;
+      return _api.againstXss(`${key}="${value}"`);
     }, ' ');
   },
   /**
