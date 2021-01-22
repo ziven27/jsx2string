@@ -51,7 +51,7 @@ const _api = {
   getStringOfAttrs: function ({children, dangerouslySetInnerHTML, ...attrs} = {}) {
     const attrKeys = Object.keys(attrs || {});
     return _api.array2string(attrKeys, function (attrKey) {
-      return _api.againstXss(`${attrKey}="${attrs[attrKey]}"`);
+      return _api.againstXss(`${attrKey==='className'?'class':attrKey}="${attrs[attrKey]}"`);
     }, ' ');
   },
   /**

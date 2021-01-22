@@ -14,7 +14,7 @@ const Home = function () {
       <>{dangerText}</>
       <div/>
       <div dangerouslySetInnerHTML>{dangerText}</div>
-      <div>{dangerText}</div>
+      <div className="123">{dangerText}</div>
       <div>{() => {
         return "function return hello world";
       }}</div>

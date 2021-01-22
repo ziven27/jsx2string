@@ -87,7 +87,7 @@ var _api = {
 
     var attrKeys = Object.keys(attrs || {});
     return _api.array2string(attrKeys, function (attrKey) {
-      return _api.againstXss("".concat(attrKey, "=\"").concat(attrs[attrKey], "\""));
+      return _api.againstXss("".concat(attrKey === 'className' ? 'class' : attrKey, "=\"").concat(attrs[attrKey], "\""));
     }, ' ');
   },
 
