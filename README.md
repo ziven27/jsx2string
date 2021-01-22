@@ -64,6 +64,7 @@ Make sure you have the "runtime" and "importSource" fn defined like below.
 Now you can create components e.g.
 
 ```jsx
+import jsx2string from "./jsx2string";
 const Avatar=({children, ...rest})=>{
   return <avatar {...rest}>{children}</avatar>;
 };
@@ -75,7 +76,7 @@ const Home = function () {
     "firstName": "hello",
     "lastName": `world<br/>`
   };
-  return (
+  return jsx2string(
     <Fragment>
       <div>{dangerText}</div>
       <div dangerouslySetInnerHTML>{dangerText}</div>
@@ -89,10 +90,7 @@ const Home = function () {
   )
 };
 
-/* here you need return the instence of Home */
-/* Home() will return a function */
-/* Home()() will get the string */
-export default Home();
+export default Home;
 ```
 
 > It just looks like React，but it's totally plain javascript. 

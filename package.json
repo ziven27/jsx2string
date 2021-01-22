@@ -1,9 +1,9 @@
 {
   "name": "jsx2string",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Transpile JSX to plain javascript strings, without React or other runtime libraries.",
   "author": "ziven27",
-  "main": "jsx-runtime.js",
+  "main": "index.js",
   "license": "MIT",
   "private": false,
   "repository": {

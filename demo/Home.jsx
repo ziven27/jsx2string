@@ -1,3 +1,5 @@
+import render from "../index.js";
+
 const Avatar = ({children, ...rest}) => {
   return <span title="avatar" {...rest}>{children}</span>;
 };
@@ -9,7 +11,7 @@ const Home = function () {
     "firstName": "firstName",
     "lastName": `lastName<br/>`
   };
-  return (
+  return render(
     <div>
       <>{dangerText}</>
       <div/>
@@ -26,7 +28,7 @@ const Home = function () {
       <Avatar title="123">1232</Avatar>
       {[1, 2, 3].map((item) => <Avatar>{item}</Avatar>)}
     </div>
-  )
+  );
 };
 
-export default Home();
+export default Home;
