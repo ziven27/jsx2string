@@ -3,7 +3,8 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.jsxs = exports.jsx = exports.Fragment = exports["default"] = void 0;
+exports.jsx = jsx;
+exports.jsxs = exports.Fragment = exports["default"] = void 0;
 
 function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
 
@@ -11,13 +12,24 @@ function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { va
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
-function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
-
 function _objectWithoutProperties(source, excluded) { if (source == null) return {}; var target = _objectWithoutPropertiesLoose(source, excluded); var key, i; if (Object.getOwnPropertySymbols) { var sourceSymbolKeys = Object.getOwnPropertySymbols(source); for (i = 0; i < sourceSymbolKeys.length; i++) { key = sourceSymbolKeys[i]; if (excluded.indexOf(key) >= 0) continue; if (!Object.prototype.propertyIsEnumerable.call(source, key)) continue; target[key] = source[key]; } } return target; }
 
 function _objectWithoutPropertiesLoose(source, excluded) { if (source == null) return {}; var target = {}; var sourceKeys = Object.keys(source); var key, i; for (i = 0; i < sourceKeys.length; i++) { key = sourceKeys[i]; if (excluded.indexOf(key) >= 0) continue; target[key] = source[key]; } return target; }
 
 var _api = {
+  /**
+   * 判断是否为安全的元素
+   * @param item
+   * @returns {boolean}
+   */
+  isSafeHTML: function isSafeHTML(item) {
+    if (item && typeof item.safeHTML === 'string') {
+      return true;
+    }
+
+    return false;
+  },
+
   /**
    * 基于数组获取字符串(为了更好的性能)
    * @param arrayObj 数组
@@ -99,142 +111,205 @@ var _api = {
   },
 
   /**
+   * 获取多个子元素
+   * @param children
+   * @param dangerouslySetInnerHTML
+   */
+  getChildrensStr: function getChildrensStr(_ref2) {
+    var _ref2$children = _ref2.children,
+        children = _ref2$children === void 0 ? '' : _ref2$children;
+    var safeHTML = '';
+
+    for (var i = 0, len = children.length; i < len; i++) {
+      safeHTML += _api.getSafeChildren({
+        children: children[i]
+      }).safeHTML;
+    }
+
+    return safeHTML;
+  },
+
+  /**
    * 获取子元素
    * @param children
    * @param dangerouslySetInnerHTML
    * @returns {string|*}
    */
-  getChildrenStr: function getChildrenStr(_ref2) {
-    var _ref2$children = _ref2.children,
-        children = _ref2$children === void 0 ? '' : _ref2$children,
-        dangerouslySetInnerHTML = _ref2.dangerouslySetInnerHTML;
+  getSafeChildren: function getSafeChildren(_ref3) {
+    var _ref3$children = _ref3.children,
+        children = _ref3$children === void 0 ? '' : _ref3$children,
+        dangerouslySetInnerHTML = _ref3.dangerouslySetInnerHTML;
 
-    if (!children) {
-      return '';
-    } // 返回 render 函数
-
-
-    if (_typeof(children) === 'object' && typeof children.render === "function") {
-      return children.render();
-    } // 方法
+    var safeHTML = function () {
+      // 返回危险的元素
+      // 当有 dangerouslySetInnerHTML 会忽略子元素
+      if (dangerouslySetInnerHTML && typeof dangerouslySetInnerHTML['__html'] === 'string') {
+        return dangerouslySetInnerHTML['__html'];
+      } // 子元素不存在
 
 
-    if (typeof children === 'function') {
-      return children();
-    } // 数组
+      if (!children) {
+        return '';
+      } // 本身就是安全的文案
 
 
-    if (children instanceof Array && children.length > 0) {
-      var result = _api.array2string(children, function (item) {
-        return _api.getChildrenStr({
-          children: item,
-          dangerouslySetInnerHTML: dangerouslySetInnerHTML
+      if (_api.isSafeHTML(children)) {
+        return children.safeHTML;
+      } // 方法
+
+
+      if (typeof children === 'function') {
+        return _api.againstXss(children());
+      } // 数组
+
+
+      if (children instanceof Array) {
+        return _api.getChildrensStr({
+          children: children
         });
-      });
+      } // 返回转译文本
 
-      return result;
-    }
 
-    return dangerouslySetInnerHTML ? children : _api.againstXss(children);
+      return _api.againstXss(children);
+    }();
+
+    return {
+      safeHTML: safeHTML
+    };
   }
 };
-/**
- * 渲染的方法
- * @type {{children: (function({props?: *}): *), fn: (function({element: *, props?: *}): *), selfClose: (function({element: *, props?: *}): string), element: (function({element: *, props?: *}): string)}}
- */
-
 var render = {
-  element: function element(_ref3) {
-    var _element = _ref3.element,
-        props = _ref3.props;
+  /**
+   * 渲染标准元素
+   * @param element
+   * @param props
+   * @returns {string}
+   */
+  element: function element(_ref4) {
+    var _element = _ref4.element,
+        props = _ref4.props;
 
     // 获取 string of attr
     var strAttrs = _api.getStringOfAttrs(props);
 
-    return "<".concat(_element).concat(strAttrs ? " ".concat(strAttrs) : '', ">").concat(_api.getChildrenStr(props), "</").concat(_element, ">");
+    var childrenObj = _api.getSafeChildren(props);
+
+    return "<".concat(_element).concat(strAttrs ? " ".concat(strAttrs) : '', ">").concat(childrenObj.safeHTML, "</").concat(_element, ">");
   },
-  selfClose: function selfClose(_ref4) {
-    var element = _ref4.element,
-        props = _ref4.props;
+
+  /**
+   * 渲染自闭合标签
+   * @param element
+   * @param props
+   * @returns {string}
+   */
+  selfClose: function selfClose(_ref5) {
+    var element = _ref5.element,
+        props = _ref5.props;
 
     // 获取 string of attr
     var strAttrs = _api.getStringOfAttrs(props);
 
     return "<".concat(element).concat(strAttrs ? " ".concat(strAttrs) : '', "/>");
   },
-  children: function children(_ref5) {
-    var props = _ref5.props;
-    return _api.getChildrenStr(props);
+
+  /**
+   * 直接渲染子元素
+   * @param props
+   * @returns {string|string}
+   */
+  children: function children(_ref6) {
+    var props = _ref6.props;
+    return _api.getSafeChildren(props).safeHTML;
   },
-  fn: function fn(_ref6) {
-    var element = _ref6.element,
-        props = _ref6.props;
-    var result = element(_objectSpread(_objectSpread({}, props), {}, {
-      children: _api.getChildrenStr(props)
-    }));
-    return typeof result === 'function' ? result() : result;
+
+  /**
+   * 渲染function
+   * @param element
+   * @param props
+   * @returns {string}
+   */
+  fn: function fn(_ref7) {
+    var element = _ref7.element,
+        props = _ref7.props;
+    var elementReturn = element(_objectSpread({}, props)); // fn 有可能返回的不是 safeHTML 的对象, 也有可能返回的是字符串
+    // 所以这里需要再执行一下
+
+    var result = _api.getSafeChildren({
+      children: elementReturn
+    }).safeHTML;
+
+    return result;
   }
 }; // 空标签
 
 var Fragment = "Fragment";
 /**
- * 获取渲染函数
+ * 渲染子元素
  * @param element
- * @returns {(function({element: *, props?: *}): *)|(function({props?: *}): *)|(function({element: *, props?: *}): string)}
+ * @param props
  */
 
 exports.Fragment = Fragment;
 
-function getRenderFn(element) {
-  // 元素是 function
-  if (typeof element === 'function') {
-    return render.fn;
-  } // Fragment
-
-
-  if (element === Fragment) {
-    return render.children;
-  } // 如果不是 字符串提前返回
-
-
-  if (typeof element !== 'string') {
-    return render.children;
-  } // 自闭合标签
-
-
-  if (_api.getIsSelfCloseTag(element)) {
-    return render.selfClose;
-  } // 渲染标准的元素
-
-
-  return render.element;
-}
-
-;
-/**
- * 渲染子元素
- * @param element
- * @param props
- * @returns {function(): *}
- */
-
-var jsx = function jsx(element) {
+function jsx(element) {
   var props = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
-  return function () {
-    return getRenderFn(element)({
+
+  var safeHTML = function () {
+    // 元素是 function
+    if (typeof element === 'function') {
+      return render.fn({
+        element: element,
+        props: props
+      });
+    } // Fragment
+
+
+    if (element === Fragment) {
+      return render.children({
+        element: element,
+        props: props
+      });
+    } // 如果不是 字符串提前返回
+
+
+    if (typeof element !== 'string') {
+      return render.children({
+        element: element,
+        props: props
+      });
+    } // 自闭合标签
+
+
+    if (_api.getIsSelfCloseTag(element)) {
+      return render.selfClose({
+        element: element,
+        props: props
+      });
+    } // 渲染标准的元素
+
+
+    return render.element({
       element: element,
       props: props
     });
+  }(); // console.log({
+  //   element, props, safeHTML
+  // });
+
+
+  return {
+    safeHTML: safeHTML
   };
-};
+}
+
+;
 /**
  * 当有多个子元素当时候
  * 这里处理和只有一个子元素一样
  * @type {function(*=, *=): function(): *}
  */
 
-
-exports.jsx = jsx;
 var jsxs = jsx;
 exports.jsxs = jsxs;
 var jsxRuntime = {

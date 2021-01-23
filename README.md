@@ -24,7 +24,7 @@ Transpile JSX to plain javascript strings, without React or other runtime librar
 - Siblings Components ul>li\*3
 - Components with classname p.chan
 - Map components & numbers `array.map(item => <div>{item}</div>)`
-- Fragments `<>hello world</>`
+- Fragment `<>hello world</> <Fragment>hello world</Fragment>`
 - Component Props `<Custom foo="foo">`
 - Component Children `<Custom>children</Custom>`
 - [dangerouslySetInnerHTML](#dangerouslysetinnerhtml)
@@ -64,10 +64,10 @@ Make sure you have the "runtime" and "importSource" fn defined like below.
 Now you can create components e.g.
 
 ```jsx
-import jsx2string from "jsx2string";
+import jsx2string, {Fragment} from "jsx2string";
 
-const Avatar=({children, ...rest})=>{
-  return <avatar {...rest}>{children}</avatar>;
+const Avatar = ({children, title = "avatar", ...rest}) => {
+  return <span title={title} {...rest}>{children}</span>;
 };
 
 const dangerText=`<i>hello</i>`;
@@ -78,16 +78,22 @@ const Home = function () {
     "lastName": `world<br/>`
   };
   return jsx2string(
-    <Fragment>
-      <div>{dangerText}</div>
-      <div dangerouslySetInnerHTML>{dangerText}</div>
-      <input type="checkbox" checked />
-      <img src="avatar.png" class="profile"/>
-      <h3>{[user.firstName, user.lastName].join(" ")} <span>hello</span></h3>
-      <Avatar title="123" />
-      <Fragment>再见</Fragment>
-      <>再见2</>
-    </Fragment>
+    <div>
+      <Fragment dangerouslySetInnerHTML={{__html: dangerText}}/>
+      <hr/>
+      <>{null}</>
+      <div/>
+      <div dangerouslySetInnerHTML={{__html: dangerText}}/>
+      <div className="123">{dangerText}</div>
+      <div>{() => 'hello'}</div>
+      <div>{['1', '2', '3']}</div>
+      <input type="checkbox" checked/>
+      <input type="checkbox" checked={false}/>
+      <img src="avatar.png" className="profile"/>
+      <h3>{[user.firstName, user.lastName].join(" ")} {dangerText} <span>hello</span></h3>
+      <Avatar title="1232">1232</Avatar>
+      {[1, 2, 3].map((item) => <Avatar>{item}</Avatar>)}
+    </div>
   )
 };
 
@@ -99,10 +105,9 @@ export default Home;
 ### dangerouslySetInnerHTML
 
 ```jsx
+const dangerText=`<i>hello</i>`;
+
 function render() {
-  const dangerText=`<i>hello</i>`;
-  return <div dangerouslySetInnerHTML>{dangerText}</div>
+  return <div dangerouslySetInnerHTML={{__html:dangerText}}>this children will be ignore</div>
 }
 ```
-
-> it's not like `dangerouslySetInnerHTML={{__html:'**'}}`, Only need this attribute

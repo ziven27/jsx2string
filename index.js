@@ -3,18 +3,23 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports["default"] = void 0;
+exports["default"] = _default;
+exports.Fragment = void 0;
 
 /**
- * 需要这个的原因在于 jsx-runtime 返回的是一个 2 级嵌套的方法，
- * 需要执行一次拿到 render 方法然后再执行才能返回结果
- * @param fn
- * @returns {*}
+ * jsx-runtime 返回的 结果是 {safeHTML:'**'} 的结构
+ * @param obj
+ * @returns {string|string|*}
  */
-function jsx2string(fn) {
-  return typeof fn === 'function' ? fn() : fn;
+function _default(obj) {
+  if (obj && typeof obj.safeHTML === 'string') {
+    return obj.safeHTML;
+  }
+
+  return obj;
 }
 
-;
-var _default = jsx2string;
-exports["default"] = _default;
+; // 空标签
+
+var Fragment = "Fragment";
+exports.Fragment = Fragment;
